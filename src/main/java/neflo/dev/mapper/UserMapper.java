@@ -1,5 +1,6 @@
 package neflo.dev.mapper;
 
+import neflo.dev.model.dto.group.GroupMemberDTO;
 import neflo.dev.model.dto.user.UserDTO;
 import neflo.dev.model.entity.UserModel;
 import org.mapstruct.Mapper;
@@ -17,5 +18,7 @@ public interface UserMapper {
     UserModel dtoToEntity(UserDTO dto);
 
     UserDTO entityToDTO(UserModel entity);
+
+    GroupMemberDTO entityToGroupMemberDTO(UserModel entity);
 
 }

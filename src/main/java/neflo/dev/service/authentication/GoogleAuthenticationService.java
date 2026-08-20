@@ -10,9 +10,6 @@ import neflo.dev.model.entity.UserModel;
 import neflo.dev.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-
 @Service
 @Slf4j
 public class GoogleAuthenticationService {
@@ -43,7 +40,7 @@ public class GoogleAuthenticationService {
 
         String email = payload.getEmail();
 
-        if (!Boolean.TRUE.equals(payload.getEmailVerified())){
+        if (!Boolean.TRUE.equals(payload.getEmailVerified())) {
             throw new ValidationException("email-not-verified", "Google email is not verified.");
         }
 

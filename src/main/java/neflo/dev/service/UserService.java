@@ -4,12 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import neflo.dev.exceptions.DatabaseException;
 import neflo.dev.exceptions.NoEntitiesFoundException;
-import neflo.dev.exceptions.ValidationException;
 import neflo.dev.mapper.GroupMapper;
 import neflo.dev.mapper.UserMapper;
 import neflo.dev.model.dto.group.GroupDTO;
 import neflo.dev.model.dto.user.UserDTO;
-import neflo.dev.model.dto.user.UserRequestDTO;
 import neflo.dev.model.entity.UserModel;
 import neflo.dev.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -28,29 +26,30 @@ public class UserService {
     private final UserMapper mapper;
     private final GroupMapper groupMapper;
 
-    public void updateUser(UUID uuid, UserDTO dto){
+    public UserModel updateUser(UUID uuid, UserDTO dto) {
         log.info("{}.updateUser() >> uuid :: {} -- dto :: {}", CLASS_PATH, uuid, dto);
 
         UserModel repositoryResponse = repository.findById(uuid)
-                .orElseThrow(() -> new NoEntitiesFoundException("user-not-found", "No user found."));
+                .orElseThrow(() -> new NoEntitiesFoundException("user-not-found", "User not found."));
 
         mapper.updateEntity(repositoryResponse, dto);
 
         repositoryResponse = repository.save(repositoryResponse);
 
-        if (!repositoryResponse.equalsDto(dto)){
+        if (!repositoryResponse.equalsDto(dto)) {
             throw new DatabaseException("user-not-updated", "User couldn't be updated at the moment, try again later.");
         }
 
-        log.info("{}.insertUser() >> user updated successfully", CLASS_PATH);
+        log.info("{}.updateUser() >> user updated successfully", CLASS_PATH);
+        return repositoryResponse;
     }
 
-    public void deleteUser(UUID uuid){
+    public void deleteUser(UUID uuid) {
         log.info("{}.deleteUser() >> uuid :: {}", CLASS_PATH, uuid);
 
         repository.deleteById(uuid);
 
-        if (repository.findById(uuid).isPresent()){
+        if (repository.findById(uuid).isPresent()) {
             throw new DatabaseException("user-not-deleted", "User couldn't be deleted at the moment, try again later.");
         }
         log.info("{}.deleteUser() >> user deleted successfully", CLASS_PATH);
@@ -60,7 +59,7 @@ public class UserService {
         log.info("{}.getUserGroups() >> uuid :: {}", CLASS_PATH, uuid);
 
         UserModel repositoryResponse = repository.findById(uuid)
-                .orElseThrow(() -> new NoEntitiesFoundException("user-not-found", "No user found."));
+                .orElseThrow(() -> new NoEntitiesFoundException("user-not-found", "User not found."));
         log.info("{}.getUserGroups() >> user found", CLASS_PATH);
 
         List<GroupDTO> userGroups = repositoryResponse.getGroups().stream().map(groupMapper::entityToDTO).toList();

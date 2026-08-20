@@ -24,7 +24,7 @@ public class AuthenticationService {
         this.authenticationManager = authenticationManager;
     }
 
-    public boolean isUserRegistered(UserDTO userDTO){
+    public boolean isUserRegistered(UserDTO userDTO) {
         return userRepository.existsByEmail(userDTO.email());
     }
 

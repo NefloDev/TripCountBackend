@@ -9,7 +9,9 @@ import org.springframework.data.domain.Persistable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -21,6 +23,7 @@ import java.util.*;
 public class UserModel implements Persistable<UUID>, UserDetails {
 
     @Id
+    @NonNull
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "ID")
     private UUID id;
