@@ -1,6 +1,6 @@
 package neflo.dev.repository;
 
-import neflo.dev.model.UserModel;
+import neflo.dev.model.entity.UserModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

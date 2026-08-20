@@ -5,8 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import neflo.dev.model.TripModel;
-import neflo.dev.model.UserModel;
+import neflo.dev.model.entity.TripModel;
+import neflo.dev.model.entity.UserModel;
 
 @Getter
 @Setter

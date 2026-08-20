@@ -1,10 +1,11 @@
-package neflo.dev.model;
+package neflo.dev.model.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.domain.Persistable;
 
 import java.time.LocalDate;
 import java.util.UUID;
@@ -15,7 +16,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Entity
 @Table(name = "GRP_TRIPS")
-public class TripModel {
+public class TripModel implements Persistable<UUID> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -45,4 +46,8 @@ public class TripModel {
     @Column(name = "NOTES")
     private String notes;
 
+    @Override
+    public boolean isNew() {
+        return id == null;
+    }
 }

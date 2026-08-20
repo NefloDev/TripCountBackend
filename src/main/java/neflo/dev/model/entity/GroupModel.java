@@ -1,10 +1,11 @@
-package neflo.dev.model;
+package neflo.dev.model.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.domain.Persistable;
 
 import java.util.List;
 import java.util.UUID;
@@ -15,7 +16,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Entity
 @Table(name = "GRP_GROUPS")
-public class GroupModel {
+public class GroupModel implements Persistable<UUID> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -41,4 +42,8 @@ public class GroupModel {
     )
     private List<UserModel> groups;
 
+    @Override
+    public boolean isNew() {
+        return id == null;
+    }
 }
