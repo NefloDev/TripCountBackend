@@ -28,36 +28,6 @@ public class UserService {
     private final UserMapper mapper;
     private final GroupMapper groupMapper;
 
-    public UserDTO getUserByEmail(UserRequestDTO requestDTO){
-        log.info("{}.getUserByEmail() >> requestDTO :: {}", CLASS_PATH, requestDTO);
-
-        UserModel repositoryResponse = repository.findByEmail(requestDTO.email())
-                .orElseThrow(() -> new NoEntitiesFoundException("user-not-found", String.format("No user found with email %s.", requestDTO.email())));
-
-        UserDTO responseDTO = mapper.entityToDTO(repositoryResponse);
-
-        log.info("{}.getUserByEmail() >> responseDTO :: {}", CLASS_PATH, responseDTO);
-        return responseDTO;
-    }
-
-    public void insertUser(UserDTO dto){
-        log.info("{}.insertUser() >> dto :: {}", CLASS_PATH, dto);
-
-        if (repository.findByEmail(dto.email()).isPresent()){
-            throw new ValidationException("email-exists", "A user with that email already exists.");
-        }
-
-        UserModel userModel = mapper.dtoToEntity(dto);
-
-        userModel = repository.save(userModel);
-
-        if (userModel.getId() == null){
-            throw new DatabaseException("user-not-saved", "User couldn't be saved at the moment, try again later.");
-        }
-
-        log.info("{}.insertUser() >> user saved successfully", CLASS_PATH);
-    }
-
     public void updateUser(UUID uuid, UserDTO dto){
         log.info("{}.updateUser() >> uuid :: {} -- dto :: {}", CLASS_PATH, uuid, dto);
 

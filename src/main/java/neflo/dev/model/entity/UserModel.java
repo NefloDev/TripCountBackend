@@ -1,27 +1,24 @@
 package neflo.dev.model.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import neflo.dev.model.dto.user.UserDTO;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.springframework.data.domain.Persistable;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Entity
 @Table(name = "URS_USRS")
-public class UserModel implements Persistable<UUID> {
+public class UserModel implements Persistable<UUID>, UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -98,5 +95,15 @@ public class UserModel implements Persistable<UUID> {
                 .append(pfp)
                 .append(groups)
                 .toHashCode();
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of();
+    }
+
+    @Override
+    public String getUsername() {
+        return this.id.toString();
     }
 }

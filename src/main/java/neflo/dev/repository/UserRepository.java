@@ -15,4 +15,8 @@ public interface UserRepository extends JpaRepository<UserModel, UUID> {
     @Query("select u from UserModel u where u.email = :email")
     Optional<UserModel> findByEmail(@Param("email") String email);
 
+    @Query("select (count(u) > 0) from UserModel u where u.email = :email")
+    boolean existsByEmail(@Param("email") String email);
+
+
 }
