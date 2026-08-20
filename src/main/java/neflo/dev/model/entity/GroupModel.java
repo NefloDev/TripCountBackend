@@ -38,12 +38,7 @@ public class GroupModel implements Persistable<UUID> {
     @JoinColumn(name = "GRP_ID")
     private List<TripModel> trips;
 
-    @ManyToMany
-    @JoinTable(
-            name = "REL_GROUP_MEMBERS",
-            joinColumns = @JoinColumn(name = "ID"),
-            inverseJoinColumns = @JoinColumn(name = "GRP_ID")
-    )
+    @ManyToMany(mappedBy = "groups")
     private List<UserModel> members;
 
     @Override

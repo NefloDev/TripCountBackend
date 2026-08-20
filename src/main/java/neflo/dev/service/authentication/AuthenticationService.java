@@ -33,7 +33,7 @@ public class AuthenticationService {
                 .email(userDTO.email())
                 .name(userDTO.name())
                 .nickname(userDTO.nickname())
-                .password(passwordEncoder.encode(userDTO.password()))
+                .password(passwordEncoder.encode(userDTO.password().orElse("")))
                 .pfp(userDTO.pfp())
                 .build();
 

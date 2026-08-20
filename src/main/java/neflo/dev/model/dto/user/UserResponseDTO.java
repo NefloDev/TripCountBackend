@@ -1,10 +1,7 @@
 package neflo.dev.model.dto.user;
 
-import java.util.Optional;
-
-public record UserDTO(
+public record UserResponseDTO(
         String email,
-        Optional<String> password,
         String name,
         String nickname,
         byte[] pfp

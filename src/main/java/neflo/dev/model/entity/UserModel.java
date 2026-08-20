@@ -23,7 +23,6 @@ import java.util.UUID;
 public class UserModel implements Persistable<UUID>, UserDetails {
 
     @Id
-    @NonNull
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "ID")
     private UUID id;
@@ -46,8 +45,8 @@ public class UserModel implements Persistable<UUID>, UserDetails {
     @ManyToMany
     @JoinTable(
             name = "REL_GROUP_MEMBERS",
-            joinColumns = @JoinColumn(name = "ID"),
-            inverseJoinColumns = @JoinColumn(name = "USR_ID")
+            joinColumns = @JoinColumn(name = "USR_ID"),
+            inverseJoinColumns = @JoinColumn(name = "GRP_ID")
     )
     private List<GroupModel> groups;
 
@@ -61,7 +60,6 @@ public class UserModel implements Persistable<UUID>, UserDetails {
 
         return new EqualsBuilder()
                 .append(email, dto.email())
-                .append(password, dto.password())
                 .append(name, dto.name())
                 .append(nickname, dto.nickname())
                 .append(pfp, dto.pfp())
