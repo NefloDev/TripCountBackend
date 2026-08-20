@@ -17,7 +17,7 @@ import java.util.*;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "URS_USRS")
+@Table(name = "USR_USERS")
 public class UserModel implements Persistable<UUID>, UserDetails {
 
     @Id
@@ -104,6 +104,6 @@ public class UserModel implements Persistable<UUID>, UserDetails {
 
     @Override
     public String getUsername() {
-        return this.id.toString();
+        return this.email;
     }
 }
