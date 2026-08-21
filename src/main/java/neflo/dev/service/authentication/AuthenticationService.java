@@ -1,6 +1,7 @@
 package neflo.dev.service.authentication;
 
 import lombok.extern.slf4j.Slf4j;
+import neflo.dev.exceptions.ValidationException;
 import neflo.dev.model.dto.user.UserDTO;
 import neflo.dev.model.dto.user.UserLoginDTO;
 import neflo.dev.model.entity.UserModel;
@@ -9,6 +10,9 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
 @Service
 @Slf4j
@@ -29,13 +33,20 @@ public class AuthenticationService {
     }
 
     public UserModel signup(UserDTO userDTO) {
+        if (userDTO.password().isEmpty()){
+            throw new ValidationException("empty-password", "Password field is empty.");
+        }
+
         UserModel user = UserModel.builder()
                 .email(userDTO.email())
                 .name(userDTO.name())
                 .nickname(userDTO.nickname())
-                .password(passwordEncoder.encode(userDTO.password().orElse("")))
-                .pfp(userDTO.pfp())
+                .password(passwordEncoder.encode(userDTO.password().get()))
                 .build();
+
+        if (userDTO.pfp().isPresent()){
+            user.setPfp(userDTO.pfp().get());
+        }
 
         return userRepository.save(user);
     }

@@ -7,6 +7,6 @@ public record UserDTO(
         Optional<String> password,
         String name,
         String nickname,
-        byte[] pfp
+        Optional<String> pfp
 ) {
 }

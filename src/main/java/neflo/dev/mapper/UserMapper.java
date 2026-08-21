@@ -13,6 +13,7 @@ public interface UserMapper {
 
     @Mapping(target = "email", ignore = true)
     @Mapping(target = "password", ignore = true)
+    @Mapping(target = "pfp", ignore = true)
     void updateEntity(@MappingTarget UserModel userModel, UserDTO dto);
 
     UserResponseDTO entityToResponseDTO(UserModel entity);

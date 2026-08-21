@@ -3,7 +3,7 @@ package neflo.dev.model.dto.group;
 import java.util.UUID;
 
 public record GroupMemberDTO(
-        UUID uuid,
+        UUID id,
         String nickname
 ) {
 }

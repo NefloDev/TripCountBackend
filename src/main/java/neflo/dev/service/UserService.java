@@ -13,6 +13,8 @@ import neflo.dev.model.entity.UserModel;
 import neflo.dev.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 
@@ -33,7 +35,7 @@ public class UserService {
         UserModel repositoryResponse = repository.findById(uuid)
                 .orElseThrow(() -> new NoEntitiesFoundException("user-not-found", "User not found."));
 
-        log.info("{}.updateUser() >> user found :: {}", CLASS_PATH, repositoryResponse);
+        log.info("{}.getUserDetail() >> user found :: {}", CLASS_PATH, repositoryResponse);
         return mapper.entityToResponseDTO(repositoryResponse);
     }
 
@@ -45,14 +47,26 @@ public class UserService {
 
         mapper.updateEntity(repositoryResponse, dto);
         boolean hasUpdatedPassword = false;
-        if (dto.password().isPresent() && !dto.password().get().equals(repositoryResponse.getPassword())){
-            hasUpdatedPassword = true;
-            repositoryResponse.setPassword(dto.password().get());
+        if (dto.password().isPresent()){
+            String password = dto.password().get();
+            if (!password.equals(repositoryResponse.getPassword())){
+                hasUpdatedPassword = true;
+                repositoryResponse.setPassword(password);
+            }
+        }
+
+        boolean hasUpdatedPfp = false;
+        if (dto.pfp().isPresent()){
+            String pfpB64 = dto.pfp().get();
+            if (!pfpB64.equals(repositoryResponse.getPfp())){
+                hasUpdatedPfp = true;
+                repositoryResponse.setPfp(pfpB64);
+            }
         }
 
         repositoryResponse = repository.save(repositoryResponse);
 
-        if (!repositoryResponse.equalsDto(dto) && !hasUpdatedPassword) {
+        if (!repositoryResponse.equalsDto(dto) && !hasUpdatedPassword && !hasUpdatedPfp) {
             throw new DatabaseException("user-not-updated", "User couldn't be updated at the moment, try again later.");
         }
 

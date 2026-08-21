@@ -5,8 +5,11 @@ import lombok.*;
 import neflo.dev.model.dto.group.GroupDTO;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.hibernate.annotations.Type;
 import org.springframework.data.domain.Persistable;
 
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,15 +34,34 @@ public class GroupModel implements Persistable<UUID> {
     private String groupCode;
 
     @Lob
-    @Column(name = "PFP", columnDefinition = "BYTEA")
-    private byte[] pfp;
+    @Column(name = "PFP")
+    private String pfp;
 
-    @OneToMany
+    @OneToMany(
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
     @JoinColumn(name = "GRP_ID")
     private List<TripModel> trips;
 
     @ManyToMany(mappedBy = "groups")
     private List<UserModel> members;
+
+    public void addMember(UserModel user){
+        if (members == null){
+            members = new ArrayList<>();
+        }
+        members.add(user);
+        user.getGroups().add(this);
+    }
+
+    public void addTrip(TripModel trip){
+        if (trips == null){
+            trips = new ArrayList<>();
+        }
+        trips.add(trip);
+        trip.setGroup(this);
+    }
 
     @Override
     public boolean isNew() {
@@ -51,8 +73,6 @@ public class GroupModel implements Persistable<UUID> {
 
         return new EqualsBuilder()
                 .append(name, dto.name())
-                .append(groupCode, dto.groupCode())
-                .append(pfp, dto.pfp())
                 .isEquals();
     }
 

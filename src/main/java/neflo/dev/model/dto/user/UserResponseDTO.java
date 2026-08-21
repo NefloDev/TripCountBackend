@@ -4,6 +4,6 @@ public record UserResponseDTO(
         String email,
         String name,
         String nickname,
-        byte[] pfp
+        String pfp
 ) {
 }

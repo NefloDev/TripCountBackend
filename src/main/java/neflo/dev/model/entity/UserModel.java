@@ -40,7 +40,7 @@ public class UserModel implements Persistable<UUID>, UserDetails {
     private String nickname;
 
     @Column(name = "PFP")
-    private byte[] pfp;
+    private String pfp;
 
     @ManyToMany
     @JoinTable(

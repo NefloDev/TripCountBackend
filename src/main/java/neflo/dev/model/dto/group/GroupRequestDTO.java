@@ -1,12 +1,9 @@
 package neflo.dev.model.dto.group;
 
 import java.util.Optional;
-import java.util.UUID;
 
-public record GroupDTO(
-        UUID id,
+public record GroupRequestDTO(
         String name,
-        String groupCode,
         Optional<String> pfp
 ) {
 }
