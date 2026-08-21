@@ -9,12 +9,11 @@ import neflo.dev.exceptions.ValidationException;
 import neflo.dev.mapper.GroupMapper;
 import neflo.dev.mapper.TripMapper;
 import neflo.dev.mapper.UserMapper;
-import neflo.dev.model.dto.TripDTO;
+import neflo.dev.model.dto.trip.TripRequestDTO;
 import neflo.dev.model.dto.group.GroupDTO;
 import neflo.dev.model.dto.group.GroupMemberBalanceDTO;
 import neflo.dev.model.dto.group.GroupMemberDTO;
 import neflo.dev.model.dto.group.GroupRequestDTO;
-import neflo.dev.model.dto.user.UserResponseDTO;
 import neflo.dev.model.entity.GroupModel;
 import neflo.dev.model.entity.TripModel;
 import neflo.dev.model.entity.UserModel;
@@ -156,7 +155,7 @@ public class GroupService {
         return groupMembers;
     }
 
-    public List<TripDTO> getGroupTrips(UUID userUuid, UUID groupUuid) {
+    public List<TripRequestDTO> getGroupTrips(UUID userUuid, UUID groupUuid) {
         log.info("{}.getGroupTrips() >> groupUuid :: {}", CLASS_PATH, groupUuid);
 
         GroupModel repositoryResponse = repository.findById(groupUuid)
@@ -165,8 +164,8 @@ public class GroupService {
 
         checkUserIsMember(userUuid, repositoryResponse);
 
-        List<TripDTO> groupMembers = repositoryResponse.getTrips().stream().map(tripMapper::entityToDTO).toList();
-        log.info("{}.getGroupTrips() >> groupMembers :: {}", CLASS_PATH, groupMembers.stream().map(TripDTO::date).toList());
+        List<TripRequestDTO> groupMembers = repositoryResponse.getTrips().stream().map(tripMapper::entityToRequestDTO).toList();
+        log.info("{}.getGroupTrips() >> groupMembers :: {}", CLASS_PATH, groupMembers.stream().map(TripRequestDTO::date).toList());
 
         return groupMembers;
     }
@@ -179,8 +178,10 @@ public class GroupService {
 
     @Transactional
     public GroupDTO createGroup(UUID userUuid, GroupRequestDTO groupDTO) {
+        log.info("{}.createGroup() >> groupDTO :: {}", CLASS_PATH, groupDTO);
         UserModel foundUser = userRepository.findById(userUuid)
                 .orElseThrow(() -> new NoEntitiesFoundException("user-not-found", "User not found."));
+        log.info("{}.createGroup() >> user found", CLASS_PATH);
 
         for (int attempt = 1; attempt <= MAX_CODE_GENERATION_ATTEMPTS; attempt++) {
             GroupModel groupModel = GroupModel.builder()
@@ -195,7 +196,10 @@ public class GroupService {
             groupModel.addMember(foundUser);
 
             try {
-                return mapper.entityToDTO(repository.save(groupModel));
+                GroupDTO response = mapper.entityToDTO(repository.save(groupModel));
+                log.info("{}.createGroup() >> group created :: {}", CLASS_PATH, response);
+
+                return response;
             } catch (DataIntegrityViolationException e) {
                 if (!isGroupCodeCollision(e)) {
                     throw new DatabaseException("group-saving-error", "Unable to save new group.");

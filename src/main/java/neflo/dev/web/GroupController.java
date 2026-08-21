@@ -1,7 +1,7 @@
 package neflo.dev.web;
 
 import lombok.RequiredArgsConstructor;
-import neflo.dev.model.dto.TripDTO;
+import neflo.dev.model.dto.trip.TripRequestDTO;
 import neflo.dev.model.dto.group.GroupDTO;
 import neflo.dev.model.dto.group.GroupMemberBalanceDTO;
 import neflo.dev.model.dto.group.GroupMemberDTO;
@@ -43,7 +43,7 @@ public class GroupController {
     }
 
     @GetMapping("/{groupId}/trips")
-    public ResponseEntity<List<TripDTO>> getGroupTrips(@AuthenticationPrincipal UserModel user, @PathVariable("groupId") UUID groupId) {
+    public ResponseEntity<List<TripRequestDTO>> getGroupTrips(@AuthenticationPrincipal UserModel user, @PathVariable("groupId") UUID groupId) {
         return ResponseEntity.ok(service.getGroupTrips(user.getId(), groupId));
     }
 

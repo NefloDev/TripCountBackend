@@ -1,10 +1,10 @@
 package neflo.dev.model.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import neflo.dev.model.dto.trip.TripCreateDTO;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.springframework.data.domain.Persistable;
 
 import java.time.LocalDate;
@@ -12,6 +12,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -49,5 +50,31 @@ public class TripModel implements Persistable<UUID> {
     @Override
     public boolean isNew() {
         return id == null;
+    }
+
+    public boolean equalsDto(TripCreateDTO dto) {
+        if (dto == null) return false;
+
+        return new EqualsBuilder()
+                .append(driver.getId(), dto.driver())
+                .append(date, dto.date())
+                .append(durationMinutes, dto.durationMinutes())
+                .isEquals();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        TripModel tripModel = (TripModel) o;
+
+        return new EqualsBuilder().append(id, tripModel.id).append(group, tripModel.group).append(driver, tripModel.driver).append(date, tripModel.date).append(durationMinutes, tripModel.durationMinutes).append(origin, tripModel.origin).append(destination, tripModel.destination).append(notes, tripModel.notes).isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37).append(id).append(group).append(driver).append(date).append(durationMinutes).append(origin).append(destination).append(notes).toHashCode();
     }
 }
