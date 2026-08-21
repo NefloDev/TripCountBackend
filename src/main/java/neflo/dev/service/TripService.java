@@ -32,6 +32,16 @@ public class TripService {
     private final GroupRepository groupRepository;
     private final TripMapper mapper;
 
+    private static void checkValidRequest(UUID userUuid, UUID groupUuid, TripModel repositoryResponse) {
+        if (!repositoryResponse.getGroup().getId().equals(groupUuid)) {
+            throw new ValidationException("non-group-access", "Non related groups cannot access external trips");
+        }
+
+        if (repositoryResponse.getGroup().getMembers().stream().noneMatch(m -> m.getId().equals(userUuid))) {
+            throw new ValidationException("non-member-access", "Non members cannot access a group's trip data");
+        }
+    }
+
     public TripDTO createTrip(UUID userUuid, UUID groupUuid, TripCreateDTO dto) {
         log.info("{}.createTrip() >> tripDto :: {}", CLASS_PATH, dto);
         UserModel foundUser = userRepository.findById(userUuid)
@@ -42,12 +52,12 @@ public class TripService {
                 .orElseThrow(() -> new NoEntitiesFoundException("group-not-found", "Group not found with selected member."));
         log.info("{}.createTrip() >> group found", CLASS_PATH);
 
-        if (foundGroup.getMembers().stream().noneMatch(m -> m.getId().equals(foundUser.getId()))){
+        if (foundGroup.getMembers().stream().noneMatch(m -> m.getId().equals(foundUser.getId()))) {
             throw new ValidationException("non-member-access", "Non members cannot create a trip in an external group");
         }
 
         UserModel driver = foundGroup.getMembers().stream().filter(m -> m.getId().equals(dto.driver())).findFirst().orElse(null);
-        if (foundGroup.getMembers().stream().noneMatch(m -> m.getId().equals(foundUser.getId()))){
+        if (foundGroup.getMembers().stream().noneMatch(m -> m.getId().equals(foundUser.getId()))) {
             throw new ValidationException("invalid-driver", "Selected driver is not valid");
         }
 
@@ -77,22 +87,22 @@ public class TripService {
 
         mapper.updateEntity(repositoryResponse, dto);
         boolean hasUpdatedOrigin = false;
-        if (dto.origin() != null){
-            if (!dto.origin().equals(repositoryResponse.getOrigin())){
+        if (dto.origin() != null) {
+            if (!dto.origin().equals(repositoryResponse.getOrigin())) {
                 hasUpdatedOrigin = true;
                 repositoryResponse.setOrigin(dto.origin());
             }
         }
         boolean hasUpdatedDestination = false;
-        if (dto.destination() != null){
-            if (!dto.destination().equals(repositoryResponse.getDestination())){
+        if (dto.destination() != null) {
+            if (!dto.destination().equals(repositoryResponse.getDestination())) {
                 hasUpdatedDestination = true;
                 repositoryResponse.setDestination(dto.destination());
             }
         }
         boolean hasUpdatedNotes = false;
-        if (dto.notes() != null){
-            if (!dto.notes().equals(repositoryResponse.getNotes())){
+        if (dto.notes() != null) {
+            if (!dto.notes().equals(repositoryResponse.getNotes())) {
                 hasUpdatedNotes = true;
                 repositoryResponse.setNotes(dto.notes());
             }
@@ -134,16 +144,6 @@ public class TripService {
 
         log.info("{}.getTripDetail() >> trip found :: {}", CLASS_PATH, repositoryResponse);
         return mapper.entityToDTO(repositoryResponse);
-    }
-
-    private static void checkValidRequest(UUID userUuid, UUID groupUuid, TripModel repositoryResponse) {
-        if (!repositoryResponse.getGroup().getId().equals(groupUuid)) {
-            throw new ValidationException("non-group-access", "Non related groups cannot access external trips");
-        }
-
-        if (repositoryResponse.getGroup().getMembers().stream().noneMatch(m -> m.getId().equals(userUuid))) {
-            throw new ValidationException("non-member-access", "Non members cannot access a group's trip data");
-        }
     }
 
 

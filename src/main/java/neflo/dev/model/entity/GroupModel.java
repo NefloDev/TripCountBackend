@@ -5,10 +5,8 @@ import lombok.*;
 import neflo.dev.model.dto.group.GroupDTO;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.hibernate.annotations.Type;
 import org.springframework.data.domain.Persistable;
 
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -47,20 +45,12 @@ public class GroupModel implements Persistable<UUID> {
     @ManyToMany(mappedBy = "groups")
     private List<UserModel> members;
 
-    public void addMember(UserModel user){
-        if (members == null){
+    public void addMember(UserModel user) {
+        if (members == null) {
             members = new ArrayList<>();
         }
         members.add(user);
         user.getGroups().add(this);
-    }
-
-    public void addTrip(TripModel trip){
-        if (trips == null){
-            trips = new ArrayList<>();
-        }
-        trips.add(trip);
-        trip.setGroup(this);
     }
 
     @Override

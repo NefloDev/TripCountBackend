@@ -11,9 +11,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-
 @Service
 @Slf4j
 public class AuthenticationService {
@@ -33,7 +30,7 @@ public class AuthenticationService {
     }
 
     public UserModel signup(UserDTO userDTO) {
-        if (userDTO.password().isEmpty()){
+        if (userDTO.password().isEmpty()) {
             throw new ValidationException("empty-password", "Password field is empty.");
         }
 
@@ -44,7 +41,7 @@ public class AuthenticationService {
                 .password(passwordEncoder.encode(userDTO.password().get()))
                 .build();
 
-        if (userDTO.pfp().isPresent()){
+        if (userDTO.pfp().isPresent()) {
             user.setPfp(userDTO.pfp().get());
         }
 

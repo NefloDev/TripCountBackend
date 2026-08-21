@@ -1,11 +1,11 @@
 package neflo.dev.web;
 
 import lombok.RequiredArgsConstructor;
-import neflo.dev.model.dto.trip.TripRequestDTO;
 import neflo.dev.model.dto.group.GroupDTO;
 import neflo.dev.model.dto.group.GroupMemberBalanceDTO;
 import neflo.dev.model.dto.group.GroupMemberDTO;
 import neflo.dev.model.dto.group.GroupRequestDTO;
+import neflo.dev.model.dto.trip.TripRequestDTO;
 import neflo.dev.model.entity.UserModel;
 import neflo.dev.service.GroupService;
 import org.springframework.http.ResponseEntity;

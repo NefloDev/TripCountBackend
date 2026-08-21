@@ -9,11 +9,11 @@ import neflo.dev.exceptions.ValidationException;
 import neflo.dev.mapper.GroupMapper;
 import neflo.dev.mapper.TripMapper;
 import neflo.dev.mapper.UserMapper;
-import neflo.dev.model.dto.trip.TripRequestDTO;
 import neflo.dev.model.dto.group.GroupDTO;
 import neflo.dev.model.dto.group.GroupMemberBalanceDTO;
 import neflo.dev.model.dto.group.GroupMemberDTO;
 import neflo.dev.model.dto.group.GroupRequestDTO;
+import neflo.dev.model.dto.trip.TripRequestDTO;
 import neflo.dev.model.entity.GroupModel;
 import neflo.dev.model.entity.TripModel;
 import neflo.dev.model.entity.UserModel;
@@ -24,7 +24,9 @@ import org.postgresql.util.ServerErrorMessage;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -41,6 +43,12 @@ public class GroupService {
     private final UserMapper userMapper;
     private final TripMapper tripMapper;
     private final GroupCodeGenerator codeGenerator;
+
+    private static void checkUserIsMember(UUID userUuid, GroupModel repositoryResponse) {
+        if (repositoryResponse.getMembers().stream().noneMatch(m -> m.getId().equals(userUuid))) {
+            throw new ValidationException("non-member-access", "Non members cannot access a group's data");
+        }
+    }
 
     public GroupDTO getGroupDetail(UUID userUuid, UUID groupUuid) {
         log.info("{}.getGroupDetail() >> groupUuid :: {}", CLASS_PATH, groupUuid);
@@ -65,9 +73,9 @@ public class GroupService {
         mapper.updateEntity(repositoryResponse, dto);
 
         boolean hasUpdatedPfp = false;
-        if (dto.pfp().isPresent()){
+        if (dto.pfp().isPresent()) {
             String pfpB64 = dto.pfp().get();
-            if (!pfpB64.equals(repositoryResponse.getPfp())){
+            if (!pfpB64.equals(repositoryResponse.getPfp())) {
                 hasUpdatedPfp = true;
                 repositoryResponse.setPfp(pfpB64);
             }
@@ -89,7 +97,7 @@ public class GroupService {
         GroupModel repositoryResponse = repository.findById(groupUuid)
                 .orElseThrow(() -> new NoEntitiesFoundException("group-not-found", "Group not found."));
 
-        if (repositoryResponse.getMembers().size() == 1 && repositoryResponse.getMembers().get(0).getId().equals(userUuid)){
+        if (repositoryResponse.getMembers().size() == 1 && repositoryResponse.getMembers().get(0).getId().equals(userUuid)) {
             repositoryResponse.getMembers().forEach(
                     user -> user.getGroups().remove(repositoryResponse)
             );
@@ -170,12 +178,6 @@ public class GroupService {
         return groupMembers;
     }
 
-    private static void checkUserIsMember(UUID userUuid, GroupModel repositoryResponse) {
-        if (repositoryResponse.getMembers().stream().noneMatch(m -> m.getId().equals(userUuid))) {
-            throw new ValidationException("non-member-access", "Non members cannot access a group's data");
-        }
-    }
-
     @Transactional
     public GroupDTO createGroup(UUID userUuid, GroupRequestDTO groupDTO) {
         log.info("{}.createGroup() >> groupDTO :: {}", CLASS_PATH, groupDTO);
@@ -189,7 +191,7 @@ public class GroupService {
                     .groupCode(codeGenerator.generate())
                     .build();
 
-            if (groupDTO.pfp().isPresent()){
+            if (groupDTO.pfp().isPresent()) {
                 groupModel.setPfp(groupDTO.pfp().get());
             }
 

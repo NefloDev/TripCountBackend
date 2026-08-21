@@ -13,8 +13,6 @@ import neflo.dev.model.entity.UserModel;
 import neflo.dev.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 
@@ -47,18 +45,18 @@ public class UserService {
 
         mapper.updateEntity(repositoryResponse, dto);
         boolean hasUpdatedPassword = false;
-        if (dto.password().isPresent()){
+        if (dto.password().isPresent()) {
             String password = dto.password().get();
-            if (!password.equals(repositoryResponse.getPassword())){
+            if (!password.equals(repositoryResponse.getPassword())) {
                 hasUpdatedPassword = true;
                 repositoryResponse.setPassword(password);
             }
         }
 
         boolean hasUpdatedPfp = false;
-        if (dto.pfp().isPresent()){
+        if (dto.pfp().isPresent()) {
             String pfpB64 = dto.pfp().get();
-            if (!pfpB64.equals(repositoryResponse.getPfp())){
+            if (!pfpB64.equals(repositoryResponse.getPfp())) {
                 hasUpdatedPfp = true;
                 repositoryResponse.setPfp(pfpB64);
             }
