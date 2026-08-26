@@ -9,8 +9,11 @@ import neflo.dev.mapper.UserMapper;
 import neflo.dev.model.dto.group.GroupDTO;
 import neflo.dev.model.dto.user.UserDTO;
 import neflo.dev.model.dto.user.UserResponseDTO;
+import neflo.dev.model.entity.GroupModel;
 import neflo.dev.model.entity.UserModel;
+import neflo.dev.repository.GroupRepository;
 import neflo.dev.repository.UserRepository;
+import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,24 +27,28 @@ public class UserService {
     private static final String CLASS_PATH = "TripCount.UserService";
 
     private final UserRepository repository;
+    private final GroupRepository groupRepository;
     private final UserMapper mapper;
     private final GroupMapper groupMapper;
 
     public UserResponseDTO getUserDetail(UUID uuid) {
         log.info("{}.getUserDetail() >> uuid :: {}", CLASS_PATH, uuid);
 
-        UserModel repositoryResponse = repository.findById(uuid)
-                .orElseThrow(() -> new NoEntitiesFoundException("user-not-found", "User not found."));
+        UserModel repositoryResponse = getUserOrThrow(uuid);
 
         log.info("{}.getUserDetail() >> user found :: {}", CLASS_PATH, repositoryResponse);
         return mapper.entityToResponseDTO(repositoryResponse);
     }
 
+    private @NonNull UserModel getUserOrThrow(UUID uuid) {
+        return repository.findById(uuid)
+                .orElseThrow(() -> new NoEntitiesFoundException("user-not-found", "User not found."));
+    }
+
     public UserResponseDTO updateUser(UUID uuid, UserDTO dto) {
         log.info("{}.updateUser() >> uuid :: {} -- dto :: {}", CLASS_PATH, uuid, dto);
 
-        UserModel repositoryResponse = repository.findById(uuid)
-                .orElseThrow(() -> new NoEntitiesFoundException("user-not-found", "User not found."));
+        UserModel repositoryResponse = getUserOrThrow(uuid);
 
         mapper.updateEntity(repositoryResponse, dto);
         boolean hasUpdatedPassword = false;
@@ -86,14 +93,36 @@ public class UserService {
     public List<GroupDTO> getUserGroups(UUID uuid) {
         log.info("{}.getUserGroups() >> uuid :: {}", CLASS_PATH, uuid);
 
-        UserModel repositoryResponse = repository.findById(uuid)
-                .orElseThrow(() -> new NoEntitiesFoundException("user-not-found", "User not found."));
+        UserModel repositoryResponse = getUserOrThrow(uuid);
         log.info("{}.getUserGroups() >> user found", CLASS_PATH);
 
         List<GroupDTO> userGroups = repositoryResponse.getGroups().stream().map(groupMapper::entityToDTO).toList();
         log.info("{}.getUserGroups() >> userGroups :: {}", CLASS_PATH, userGroups.stream().map(GroupDTO::name).toList());
 
         return userGroups;
+    }
+
+    public GroupDTO joinGroup(UUID uuid, String groupCode) {
+        log.info("{}.joinGroup() >> uuid :: {} -- groupCode :: {}", CLASS_PATH, uuid, groupCode);
+
+        UserModel repositoryResponse = getUserOrThrow(uuid);
+        log.info("{}.joinGroup() >> user found", CLASS_PATH);
+
+        GroupModel groupResponse = groupRepository.findByGroupCode(groupCode)
+                .orElseThrow(() -> new NoEntitiesFoundException("group-not-found", "Group not found."));
+        log.info("{}.joinGroup() >> group found", CLASS_PATH);
+
+        int originalSize = repositoryResponse.getGroups().size();
+        log.info("{}.joinGroup() >> original group size :: {}", CLASS_PATH, originalSize);
+        repositoryResponse.getGroups().add(groupResponse);
+        log.info("{}.joinGroup() >> new group size :: {}", CLASS_PATH, repositoryResponse.getGroups().size());
+
+        repositoryResponse = repository.save(repositoryResponse);
+        if (originalSize == repositoryResponse.getGroups().size()) {
+            throw new DatabaseException("group-not-joined", "Couldn't jon to the group at the moment, try again later.");
+        }
+
+        return groupMapper.entityToDTO(groupResponse);
     }
 
 }

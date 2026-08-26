@@ -9,6 +9,7 @@ import org.springframework.data.domain.Persistable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -49,6 +50,10 @@ public class UserModel implements Persistable<UUID>, UserDetails {
             inverseJoinColumns = @JoinColumn(name = "GRP_ID")
     )
     private List<GroupModel> groups;
+
+    public List<GroupModel> getGroups() {
+        return groups == null ? new ArrayList<>() : groups;
+    }
 
     @Override
     public boolean isNew() {

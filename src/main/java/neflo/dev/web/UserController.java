@@ -29,6 +29,11 @@ public class UserController {
         return ResponseEntity.ok(service.getUserGroups(user.getId()));
     }
 
+    @GetMapping("/groups/join/{groupCode}")
+    public ResponseEntity<GroupDTO> joinGroup(@AuthenticationPrincipal UserModel user, @PathVariable("groupCode") String groupCode) {
+        return ResponseEntity.ok(service.joinGroup(user.getId(), groupCode));
+    }
+
     @PutMapping("/update")
     public ResponseEntity<UserResponseDTO> updateUser(@AuthenticationPrincipal UserModel user, @RequestBody UserDTO dto) {
         return ResponseEntity.ok(service.updateUser(user.getId(), dto));

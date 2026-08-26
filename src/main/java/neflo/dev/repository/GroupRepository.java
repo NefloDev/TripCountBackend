@@ -16,4 +16,8 @@ public interface GroupRepository extends JpaRepository<GroupModel, UUID> {
     @Query("select g from GroupModel g inner join g.members members where g.id = :id and members.id in :ids")
     Optional<GroupModel> findByIdAndMembers_IdIn(@Param("id") UUID id, @Param("ids") Collection<UUID> ids);
 
+    @Query("select g from GroupModel g where upper(g.groupCode) = upper(:groupCode)")
+    Optional<GroupModel> findByGroupCode(@Param("groupCode") String groupCode);
+
+
 }
