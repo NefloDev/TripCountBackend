@@ -40,10 +40,10 @@ public class GroupModel implements Persistable<UUID> {
             orphanRemoval = true
     )
     @JoinColumn(name = "GRP_ID")
-    private List<TripModel> trips;
+    private List<TripModel> trips = new ArrayList<>();
 
     @ManyToMany(mappedBy = "groups")
-    private List<UserModel> members;
+    private List<UserModel> members = new ArrayList<>();
 
     public void addMember(UserModel user) {
         if (members == null) {

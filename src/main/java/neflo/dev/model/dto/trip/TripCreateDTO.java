@@ -1,6 +1,7 @@
 package neflo.dev.model.dto.trip;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 public record TripCreateDTO(
@@ -9,6 +10,7 @@ public record TripCreateDTO(
         Integer durationMinutes,
         String origin,
         String destination,
-        String notes
+        String notes,
+        List<UUID> passengers
 ) {
 }

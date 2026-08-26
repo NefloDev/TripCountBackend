@@ -14,11 +14,16 @@ import neflo.dev.model.entity.UserModel;
 import neflo.dev.repository.GroupRepository;
 import neflo.dev.repository.TripRepository;
 import neflo.dev.repository.UserRepository;
+import org.checkerframework.checker.units.qual.A;
+import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 @RequiredArgsConstructor
 @Service
@@ -44,13 +49,14 @@ public class TripService {
 
     public TripDTO createTrip(UUID userUuid, UUID groupUuid, TripCreateDTO dto) {
         log.info("{}.createTrip() >> tripDto :: {}", CLASS_PATH, dto);
-        UserModel foundUser = userRepository.findById(userUuid)
-                .orElseThrow(() -> new NoEntitiesFoundException("user-not-found", "User not found."));
+        UserModel foundUser = getUserOrThrow(userUuid);
         log.info("{}.createTrip() >> user found", CLASS_PATH);
 
         GroupModel foundGroup = groupRepository.findByIdAndMembers_IdIn(groupUuid, List.of(dto.driver()))
                 .orElseThrow(() -> new NoEntitiesFoundException("group-not-found", "Group not found with selected member."));
         log.info("{}.createTrip() >> group found", CLASS_PATH);
+
+        List<UserModel> passengers = getPassengersOrThrow(dto.passengers(), foundGroup);
 
         if (foundGroup.getMembers().stream().noneMatch(m -> m.getId().equals(foundUser.getId()))) {
             throw new ValidationException("non-member-access", "Non members cannot create a trip in an external group");
@@ -69,12 +75,34 @@ public class TripService {
                 .origin(dto.origin())
                 .destination(dto.destination())
                 .notes(dto.notes())
+                .passengers(passengers)
                 .build();
 
         TripDTO response = mapper.entityToDTO(repository.save(trip));
         log.info("{}.createTrip() >> trip created :: {}", CLASS_PATH, response);
 
         return response;
+    }
+
+    private @NonNull List<UserModel> getPassengersOrThrow(List<UUID> passengersUuids, GroupModel foundGroup) {
+        List<UserModel> passengers = passengersUuids.stream()
+                .distinct()
+                .map(this::getUserOrThrow)
+                .toList();
+
+        for (UserModel passenger : passengers) {
+            if (passenger.getGroups().stream().noneMatch(g -> g.getId().equals(foundGroup.getId()))) {
+                throw new ValidationException("passenger-not-member", "All of the passengers should be members of the trip's group.");
+            }
+        }
+
+        return passengers;
+    }
+
+    private @NonNull UserModel getUserOrThrow(UUID userUuid) {
+        UserModel foundUser = userRepository.findById(userUuid)
+                .orElseThrow(() -> new NoEntitiesFoundException("user-not-found", "User not found."));
+        return foundUser;
     }
 
     public TripDTO updateTrip(UUID userUuid, UUID groupUuid, UUID tripUuid, TripCreateDTO dto) {
@@ -85,26 +113,37 @@ public class TripService {
 
         checkValidRequest(userUuid, groupUuid, repositoryResponse);
 
+        List<UserModel> passengers = getPassengersOrThrow(dto.passengers(), repositoryResponse.getGroup());
+
         mapper.updateEntity(repositoryResponse, dto);
-        boolean hasUpdatedOrigin = false;
+        int updateCount = 0;
+
         if (dto.origin() != null) {
             if (!dto.origin().equals(repositoryResponse.getOrigin())) {
-                hasUpdatedOrigin = true;
+                updateCount++;
                 repositoryResponse.setOrigin(dto.origin());
             }
         }
-        boolean hasUpdatedDestination = false;
+
         if (dto.destination() != null) {
             if (!dto.destination().equals(repositoryResponse.getDestination())) {
-                hasUpdatedDestination = true;
+                updateCount++;
                 repositoryResponse.setDestination(dto.destination());
             }
         }
-        boolean hasUpdatedNotes = false;
+
         if (dto.notes() != null) {
             if (!dto.notes().equals(repositoryResponse.getNotes())) {
-                hasUpdatedNotes = true;
+                updateCount++;
                 repositoryResponse.setNotes(dto.notes());
+            }
+        }
+
+        if (!passengers.isEmpty()) {
+            if (repositoryResponse.getPassengers().isEmpty() || !repositoryResponse.getPassengers().stream()
+                    .map(p -> p.getId().toString()).toList().equals(passengers.stream().map(p -> p.getId().toString()).toList())) {
+                updateCount++;
+                repositoryResponse.setPassengers(new ArrayList<>(passengers));
             }
         }
 
@@ -115,7 +154,7 @@ public class TripService {
 
         repositoryResponse = repository.save(repositoryResponse);
 
-        if (!repositoryResponse.equalsDto(dto) && !hasUpdatedOrigin && !hasUpdatedDestination && hasUpdatedNotes) {
+        if (!repositoryResponse.equalsDto(dto) && updateCount == 0) {
             throw new DatabaseException("trip-not-updated", "Trip couldn't be updated at the moment, try again later.");
         }
 

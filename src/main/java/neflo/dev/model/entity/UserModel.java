@@ -49,11 +49,10 @@ public class UserModel implements Persistable<UUID>, UserDetails {
             joinColumns = @JoinColumn(name = "USR_ID"),
             inverseJoinColumns = @JoinColumn(name = "GRP_ID")
     )
-    private List<GroupModel> groups;
+    private List<GroupModel> groups = new ArrayList<>();
 
-    public List<GroupModel> getGroups() {
-        return groups == null ? new ArrayList<>() : groups;
-    }
+    @ManyToMany(mappedBy = "passengers")
+    private List<TripModel> trips = new ArrayList<>();
 
     @Override
     public boolean isNew() {
@@ -87,6 +86,7 @@ public class UserModel implements Persistable<UUID>, UserDetails {
                 .append(nickname, userModel.nickname)
                 .append(pfp, userModel.pfp)
                 .append(groups, userModel.groups)
+                .append(trips, userModel.trips)
                 .isEquals();
     }
 
@@ -100,6 +100,7 @@ public class UserModel implements Persistable<UUID>, UserDetails {
                 .append(nickname)
                 .append(pfp)
                 .append(groups)
+                .append(trips)
                 .toHashCode();
     }
 

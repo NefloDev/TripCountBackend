@@ -8,6 +8,8 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.springframework.data.domain.Persistable;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -46,6 +48,19 @@ public class TripModel implements Persistable<UUID> {
 
     @Column(name = "NOTES")
     private String notes;
+
+    @ManyToMany(
+            cascade = {
+                    CascadeType.PERSIST,
+                    CascadeType.MERGE
+            }
+    )
+    @JoinTable(
+            name = "REL_TRIP_PASSENGERS",
+            joinColumns = @JoinColumn(name = "TRP_ID"),
+            inverseJoinColumns = @JoinColumn(name = "USR_ID")
+    )
+    private List<UserModel> passengers = new ArrayList<>();
 
     @Override
     public boolean isNew() {
