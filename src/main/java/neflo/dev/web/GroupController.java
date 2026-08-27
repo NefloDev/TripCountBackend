@@ -1,10 +1,8 @@
 package neflo.dev.web;
 
 import lombok.RequiredArgsConstructor;
-import neflo.dev.model.dto.group.GroupDTO;
-import neflo.dev.model.dto.group.GroupMemberBalanceDTO;
-import neflo.dev.model.dto.group.GroupMemberDTO;
-import neflo.dev.model.dto.group.GroupRequestDTO;
+import neflo.dev.model.dto.GroupInsightsPeriodTypes;
+import neflo.dev.model.dto.group.*;
 import neflo.dev.model.dto.trip.TripRequestDTO;
 import neflo.dev.model.entity.UserModel;
 import neflo.dev.service.GroupService;
@@ -45,6 +43,11 @@ public class GroupController {
     @GetMapping("/{groupId}/trips")
     public ResponseEntity<List<TripRequestDTO>> getGroupTrips(@AuthenticationPrincipal UserModel user, @PathVariable("groupId") UUID groupId) {
         return ResponseEntity.ok(service.getGroupTrips(user.getId(), groupId));
+    }
+
+    @PostMapping("/{groupId}/insights")
+    public ResponseEntity<GroupInsights> getGroupInsights(@AuthenticationPrincipal UserModel user, @PathVariable("groupId") UUID groupId, @RequestBody GroupInsightsRequest groupInsightsRequest){
+        return ResponseEntity.ok(service.getGroupInsights(user.getId(), groupId, groupInsightsRequest));
     }
 
     @PutMapping("/{groupId}/update")

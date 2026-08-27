@@ -29,7 +29,7 @@ public class GoogleAuthenticationService {
         try {
             googleIdToken = verifier.verify(idToken);
         } catch (Exception e) {
-            throw new UnexpectedException("unable-google-login", "We had a problem perfoming google login.");
+            throw new UnexpectedException("unable-google-login", "We had a problem perfoming google login.", e);
         }
 
         if (googleIdToken == null) {

@@ -19,5 +19,4 @@ public interface GroupRepository extends JpaRepository<GroupModel, UUID> {
     @Query("select g from GroupModel g where upper(g.groupCode) = upper(:groupCode)")
     Optional<GroupModel> findByGroupCode(@Param("groupCode") String groupCode);
 
-
 }

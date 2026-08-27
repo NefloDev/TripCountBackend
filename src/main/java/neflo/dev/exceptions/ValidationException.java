@@ -6,7 +6,4 @@ public class ValidationException extends CustomRuntimeException {
         super(errorCode, message);
     }
 
-    public ValidationException(String errorCode) {
-        super(errorCode);
-    }
 }

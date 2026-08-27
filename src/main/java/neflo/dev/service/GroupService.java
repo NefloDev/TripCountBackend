@@ -9,15 +9,15 @@ import neflo.dev.exceptions.ValidationException;
 import neflo.dev.mapper.GroupMapper;
 import neflo.dev.mapper.TripMapper;
 import neflo.dev.mapper.UserMapper;
-import neflo.dev.model.dto.group.GroupDTO;
-import neflo.dev.model.dto.group.GroupMemberBalanceDTO;
-import neflo.dev.model.dto.group.GroupMemberDTO;
-import neflo.dev.model.dto.group.GroupRequestDTO;
+import neflo.dev.model.dto.GroupInsightsPeriodTypes;
+import neflo.dev.model.dto.YearMonth;
+import neflo.dev.model.dto.group.*;
 import neflo.dev.model.dto.trip.TripRequestDTO;
 import neflo.dev.model.entity.GroupModel;
 import neflo.dev.model.entity.TripModel;
 import neflo.dev.model.entity.UserModel;
 import neflo.dev.repository.GroupRepository;
+import neflo.dev.repository.JDBCRepository;
 import neflo.dev.repository.UserRepository;
 import org.postgresql.util.PSQLException;
 import org.postgresql.util.ServerErrorMessage;
@@ -39,6 +39,7 @@ public class GroupService {
 
     private final GroupRepository repository;
     private final UserRepository userRepository;
+    private final JDBCRepository jdbcRepository;
     private final GroupMapper mapper;
     private final UserMapper userMapper;
     private final TripMapper tripMapper;
@@ -176,6 +177,24 @@ public class GroupService {
         log.info("{}.getGroupTrips() >> groupMembers :: {}", CLASS_PATH, groupMembers.stream().map(TripRequestDTO::date).toList());
 
         return groupMembers;
+    }
+
+    public GroupInsights getGroupInsights(UUID userUuid, UUID groupUuid, GroupInsightsRequest groupInsightsRequest) {
+        log.info("{}.getGroupInsights() >> groupUuid :: {} -- groupInsightsRequest :: {}", CLASS_PATH, groupUuid, groupInsightsRequest);
+
+        GroupModel repositoryResponse = repository.findById(groupUuid)
+                .orElseThrow(() -> new NoEntitiesFoundException("group-not-found", "Group not found."));
+        log.info("{}.getGroupInsights() >> group found", CLASS_PATH);
+
+        checkUserIsMember(userUuid, repositoryResponse);
+
+        GroupInsights response = switch (groupInsightsRequest.periodType()) {
+            case YEARLY -> jdbcRepository.getYearlyGroupInsights(groupUuid, groupInsightsRequest.year());
+            case MONTHLY -> jdbcRepository.getMonthlyGroupInsights(groupUuid, YearMonth.fromGroupInsightsRequest(groupInsightsRequest));
+        };
+        log.info("{}.getGroupInsights() >> insights found", CLASS_PATH);
+
+        return response;
     }
 
     @Transactional

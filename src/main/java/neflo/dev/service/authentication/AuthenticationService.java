@@ -1,6 +1,7 @@
 package neflo.dev.service.authentication;
 
 import lombok.extern.slf4j.Slf4j;
+import neflo.dev.exceptions.AuthenticationException;
 import neflo.dev.exceptions.ValidationException;
 import neflo.dev.model.dto.user.UserDTO;
 import neflo.dev.model.dto.user.UserLoginDTO;
@@ -49,9 +50,13 @@ public class AuthenticationService {
     }
 
     public UserModel authenticate(UserLoginDTO userLoginDTO) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(userLoginDTO.email(), userLoginDTO.password())
-        );
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(userLoginDTO.email(), userLoginDTO.password())
+            );
+        } catch (Exception e){
+            throw new AuthenticationException("user-authentication-exception", "There was an issue authenticating the current user, try again later.");
+        }
 
         return userRepository.findByEmail(userLoginDTO.email()).orElseThrow();
     }

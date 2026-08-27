@@ -6,7 +6,7 @@ public class DatabaseException extends CustomRuntimeException {
         super(errorCode, message);
     }
 
-    public DatabaseException(String errorCode) {
-        super(errorCode);
+    public DatabaseException(String errorCode, String message, Throwable cause) {
+        super(errorCode, message, cause);
     }
 }

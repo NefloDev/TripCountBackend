@@ -1,11 +1,17 @@
 package neflo.dev.config;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.MalformedJwtException;
 import lombok.extern.slf4j.Slf4j;
 import neflo.dev.exceptions.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.security.SignatureException;
 
 @RestControllerAdvice
 @Slf4j
@@ -19,7 +25,7 @@ public class CustomExceptionHandler {
                 exception.getErrorCode(),
                 exception.getMessage()
         );
-        log.error("TripCount.ExceptionHandler >> NO ENTITIES FOUND EXCEPTION {} :: {}", exception.getErrorCode(), exception.getMessage());
+        log.error("TripCount.ExceptionHandler >> NO ENTITIES FOUND EXCEPTION {}", exception.getErrorCode(), exception);
 
         return new ResponseEntity<>(response, status);
     }
@@ -32,7 +38,7 @@ public class CustomExceptionHandler {
                 exception.getErrorCode(),
                 exception.getMessage()
         );
-        log.error("TripCount.ExceptionHandler >> VALIDATION EXCEPTION {} :: {}", exception.getErrorCode(), exception.getMessage());
+        log.error("TripCount.ExceptionHandler >> VALIDATION EXCEPTION {}", exception.getErrorCode(), exception);
 
         return new ResponseEntity<>(response, status);
     }
@@ -45,7 +51,7 @@ public class CustomExceptionHandler {
                 exception.getErrorCode(),
                 exception.getMessage()
         );
-        log.error("TripCount.ExceptionHandler >> DATABASE EXCEPTION {} :: {}", exception.getErrorCode(), exception.getMessage());
+        log.error("TripCount.ExceptionHandler >> DATABASE EXCEPTION {}", exception.getErrorCode(), exception);
 
         return new ResponseEntity<>(response, status);
     }
@@ -58,7 +64,7 @@ public class CustomExceptionHandler {
                 exception.getErrorCode(),
                 exception.getMessage()
         );
-        log.error("TripCount.ExceptionHandler >> UNEXPECTED EXCEPTION {} :: {}", exception.getErrorCode(), exception.getMessage());
+        log.error("TripCount.ExceptionHandler >> UNEXPECTED EXCEPTION {}", exception.getErrorCode(), exception);
 
         return new ResponseEntity<>(response, status);
     }
@@ -71,7 +77,21 @@ public class CustomExceptionHandler {
                 exception.getErrorCode(),
                 exception.getMessage()
         );
-        log.error("TripCount.ExceptionHandler >> AUTHENTICATION EXCEPTION {} :: {}", exception.getErrorCode(), exception.getMessage());
+        log.error("TripCount.ExceptionHandler >> AUTHENTICATION EXCEPTION {}", exception.getErrorCode(), exception);
+
+        return new ResponseEntity<>(response, status);
+    }
+
+    @ExceptionHandler(value = {JwtException.class, MalformedJwtException.class, ExpiredJwtException.class, BadCredentialsException.class, SignatureException.class})
+    public ResponseEntity<CustomErrorResponse> handleFilterExceptions(Exception exception) {
+        HttpStatus status = HttpStatus.FORBIDDEN;
+        String errorCode = "authorizationException";
+        CustomErrorResponse response = new CustomErrorResponse(
+                HttpStatus.NOT_FOUND,
+                errorCode,
+                exception.getMessage()
+        );
+        log.error("TripCount.ExceptionHandler >> AUTHORIZATION EXCEPTION {}", errorCode, exception);
 
         return new ResponseEntity<>(response, status);
     }
@@ -86,7 +106,7 @@ public class CustomExceptionHandler {
                 errorCode,
                 message
         );
-        log.error("TripCount.ExceptionHandler >> GENERIC EXCEPTION {} :: {}", errorCode, message);
+        log.error("TripCount.ExceptionHandler >> GENERIC EXCEPTION {}", errorCode, exception);
 
         return new ResponseEntity<>(response, status);
     }

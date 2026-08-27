@@ -6,7 +6,7 @@ public class AuthenticationException extends CustomRuntimeException {
         super(errorCode, message);
     }
 
-    public AuthenticationException(String errorCode) {
-        super(errorCode);
+    public AuthenticationException(String errorCode, String message, Throwable cause) {
+        super(errorCode, message, cause);
     }
 }
