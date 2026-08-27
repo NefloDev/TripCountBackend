@@ -9,7 +9,6 @@ import neflo.dev.exceptions.ValidationException;
 import neflo.dev.mapper.GroupMapper;
 import neflo.dev.mapper.TripMapper;
 import neflo.dev.mapper.UserMapper;
-import neflo.dev.model.dto.GroupInsightsPeriodTypes;
 import neflo.dev.model.dto.YearMonth;
 import neflo.dev.model.dto.group.*;
 import neflo.dev.model.dto.trip.TripRequestDTO;
@@ -190,7 +189,8 @@ public class GroupService {
 
         GroupInsights response = switch (groupInsightsRequest.periodType()) {
             case YEARLY -> jdbcRepository.getYearlyGroupInsights(groupUuid, groupInsightsRequest.year());
-            case MONTHLY -> jdbcRepository.getMonthlyGroupInsights(groupUuid, YearMonth.fromGroupInsightsRequest(groupInsightsRequest));
+            case MONTHLY ->
+                    jdbcRepository.getMonthlyGroupInsights(groupUuid, YearMonth.fromGroupInsightsRequest(groupInsightsRequest));
         };
         log.info("{}.getGroupInsights() >> insights found", CLASS_PATH);
 

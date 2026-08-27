@@ -1,7 +1,6 @@
 package neflo.dev.web;
 
 import lombok.RequiredArgsConstructor;
-import neflo.dev.model.dto.GroupInsightsPeriodTypes;
 import neflo.dev.model.dto.group.*;
 import neflo.dev.model.dto.trip.TripRequestDTO;
 import neflo.dev.model.entity.UserModel;
@@ -46,7 +45,7 @@ public class GroupController {
     }
 
     @PostMapping("/{groupId}/insights")
-    public ResponseEntity<GroupInsights> getGroupInsights(@AuthenticationPrincipal UserModel user, @PathVariable("groupId") UUID groupId, @RequestBody GroupInsightsRequest groupInsightsRequest){
+    public ResponseEntity<GroupInsights> getGroupInsights(@AuthenticationPrincipal UserModel user, @PathVariable("groupId") UUID groupId, @RequestBody GroupInsightsRequest groupInsightsRequest) {
         return ResponseEntity.ok(service.getGroupInsights(user.getId(), groupId, groupInsightsRequest));
     }
 

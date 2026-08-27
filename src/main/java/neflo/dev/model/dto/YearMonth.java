@@ -7,7 +7,7 @@ public record YearMonth(
         int month
 ) {
 
-    public static YearMonth fromGroupInsightsRequest(GroupInsightsRequest request){
+    public static YearMonth fromGroupInsightsRequest(GroupInsightsRequest request) {
         return new YearMonth(request.year(), request.month());
     }
 

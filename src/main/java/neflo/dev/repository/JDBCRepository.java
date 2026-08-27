@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import neflo.dev.exceptions.DatabaseException;
 import neflo.dev.model.dto.YearMonth;
 import neflo.dev.model.dto.group.GroupInsights;
-import org.apache.commons.lang3.Validate;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Repository;
@@ -18,8 +17,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class JDBCRepository {
 
-    private final JdbcTemplate db;
-
     private static final String INSIGHTS_MONTHLY_QUERY = """
             SELECT EXTRACT('YEAR' FROM T.DATE) AS YEAR, EXTRACT('MONTH' FROM T.DATE) AS MONTH, SUM(T.DURATION_MINUTES) AS DRIVING_TIME, D.NICKNAME AS NICKNAME
             FROM GRP_TRIPS T
@@ -28,7 +25,6 @@ public class JDBCRepository {
             WHERE G.ID = ? AND DATE_TRUNC('MONTH', T.DATE) = ?
             GROUP BY EXTRACT('YEAR' FROM T.DATE), EXTRACT('MONTH' FROM T.DATE), D.NICKNAME;
             """;
-
     private static final String INSIGHTS_YEARLY_QUERY = """
             SELECT EXTRACT('YEAR' FROM T.DATE) AS YEAR, SUM(T.DURATION_MINUTES) AS DRIVING_TIME, D.NICKNAME AS NICKNAME
             FROM GRP_TRIPS T
@@ -37,7 +33,6 @@ public class JDBCRepository {
             WHERE G.ID = ? AND DATE_TRUNC('YEAR', T.DATE) = ?
             GROUP BY EXTRACT('YEAR' FROM T.DATE), D.NICKNAME;
             """;
-
     private static final ResultSetExtractor<GroupInsights> MONTHLY_INSIGHTS_RSE = rs -> {
         if (!rs.next()) {
             throw new DatabaseException("no-result-request", "Database query returned no results.");
@@ -60,7 +55,6 @@ public class JDBCRepository {
                 driverTimes
         );
     };
-
     private static final ResultSetExtractor<GroupInsights> YEARLY_INSIGHTS_RSE = rs -> {
         if (!rs.next()) {
             throw new DatabaseException("no-result-request", "Database query returned no results.");
@@ -81,6 +75,7 @@ public class JDBCRepository {
                 driverTimes
         );
     };
+    private final JdbcTemplate db;
 
     public GroupInsights getMonthlyGroupInsights(UUID groupId, YearMonth yearMonth) {
         try {
@@ -89,7 +84,7 @@ public class JDBCRepository {
             params[1] = LocalDate.of(yearMonth.year(), yearMonth.month(), 1);
 
             return db.query(INSIGHTS_MONTHLY_QUERY, MONTHLY_INSIGHTS_RSE, params);
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new DatabaseException("monthly-insights-error", "There was an error trying to retrieve requested's month group's insights.", e);
         }
     }
@@ -101,7 +96,7 @@ public class JDBCRepository {
             params[1] = LocalDate.of(year, 1, 1);
 
             return db.query(INSIGHTS_YEARLY_QUERY, YEARLY_INSIGHTS_RSE, params);
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new DatabaseException("yearly-insights-error", "There was an error trying to retrieve requested's year group's insights.", e);
         }
     }

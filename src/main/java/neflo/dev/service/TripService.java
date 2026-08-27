@@ -14,7 +14,6 @@ import neflo.dev.model.entity.UserModel;
 import neflo.dev.repository.GroupRepository;
 import neflo.dev.repository.TripRepository;
 import neflo.dev.repository.UserRepository;
-import org.checkerframework.checker.units.qual.A;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 
@@ -22,8 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Function;
-import java.util.stream.Stream;
 
 @RequiredArgsConstructor
 @Service

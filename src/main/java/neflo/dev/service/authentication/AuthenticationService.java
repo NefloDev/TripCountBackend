@@ -54,7 +54,7 @@ public class AuthenticationService {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(userLoginDTO.email(), userLoginDTO.password())
             );
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new AuthenticationException("user-authentication-exception", "There was an issue authenticating the current user, try again later.");
         }
 
