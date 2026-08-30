@@ -40,6 +40,9 @@ public class TripModel implements Persistable<UUID> {
     @Column(name = "DURATION_MINUTES")
     private Integer durationMinutes;
 
+    @Column(name = "DISTANCE_KM")
+    private Integer distanceKm;
+
     @Column(name = "ORIGIN")
     private String origin;
 
@@ -74,6 +77,7 @@ public class TripModel implements Persistable<UUID> {
                 .append(driver.getId(), dto.driver())
                 .append(date, dto.date())
                 .append(durationMinutes, dto.durationMinutes())
+                .append(distanceKm, dto.distanceKm())
                 .isEquals();
     }
 
@@ -85,11 +89,31 @@ public class TripModel implements Persistable<UUID> {
 
         TripModel tripModel = (TripModel) o;
 
-        return new EqualsBuilder().append(id, tripModel.id).append(group, tripModel.group).append(driver, tripModel.driver).append(date, tripModel.date).append(durationMinutes, tripModel.durationMinutes).append(origin, tripModel.origin).append(destination, tripModel.destination).append(notes, tripModel.notes).isEquals();
+        return new EqualsBuilder()
+                .append(id, tripModel.id)
+                .append(group, tripModel.group)
+                .append(driver, tripModel.driver)
+                .append(date, tripModel.date)
+                .append(durationMinutes, tripModel.durationMinutes)
+                .append(distanceKm, tripModel.distanceKm)
+                .append(origin, tripModel.origin)
+                .append(destination, tripModel.destination)
+                .append(notes, tripModel.notes)
+                .isEquals();
     }
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37).append(id).append(group).append(driver).append(date).append(durationMinutes).append(origin).append(destination).append(notes).toHashCode();
+        return new HashCodeBuilder(17, 37)
+                .append(id)
+                .append(group)
+                .append(driver)
+                .append(date)
+                .append(durationMinutes)
+                .append(distanceKm)
+                .append(origin)
+                .append(destination)
+                .append(notes)
+                .toHashCode();
     }
 }

@@ -9,6 +9,7 @@ public record TripDTO(
         String driver,
         LocalDate date,
         Integer durationMinutes,
+        Integer distanceKm,
         String origin,
         String destination,
         String notes

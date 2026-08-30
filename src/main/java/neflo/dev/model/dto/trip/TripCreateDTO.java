@@ -8,6 +8,7 @@ public record TripCreateDTO(
         UUID driver,
         LocalDate date,
         Integer durationMinutes,
+        Integer distanceKm,
         String origin,
         String destination,
         String notes,

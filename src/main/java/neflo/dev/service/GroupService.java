@@ -120,32 +120,10 @@ public class GroupService {
 
         checkUserIsMember(userUuid, repositoryResponse);
 
-        List<GroupMemberBalanceDTO> groupMembers = getGroupMemberBalanceList(repositoryResponse);
+        List<GroupMemberBalanceDTO> groupMembers = jdbcRepository.getGroupMembersBalanceInfo(repositoryResponse.getId());
         log.info("{}.getGroupMembersBalance() >> groupMembers :: {}", CLASS_PATH, groupMembers.stream().map(GroupMemberBalanceDTO::nickname).toList());
 
         return groupMembers;
-    }
-
-    private List<GroupMemberBalanceDTO> getGroupMemberBalanceList(GroupModel groupModel) {
-        List<UserModel> members = groupModel.getMembers();
-        List<TripModel> trips = groupModel.getTrips();
-
-        int totalDuration = trips.stream()
-                .mapToInt(TripModel::getDurationMinutes)
-                .sum();
-
-        Map<UUID, Integer> driverDurations = trips.stream()
-                .collect(Collectors.groupingBy(
-                        trip -> trip.getDriver().getId(),
-                        Collectors.summingInt(TripModel::getDurationMinutes)
-                ));
-
-        return members.stream()
-                .map(member -> {
-                    int driverDuration = driverDurations.getOrDefault(member.getId(), 0);
-                    int balance = 2 * driverDuration - totalDuration;
-                    return new GroupMemberBalanceDTO(member.getNickname(), balance);
-                }).toList();
     }
 
     public List<GroupMemberDTO> getGroupMembers(UUID userUuid, UUID groupUuid) {
@@ -240,7 +218,7 @@ public class GroupService {
             if (cause instanceof PSQLException psqlException) {
                 ServerErrorMessage error = psqlException.getServerErrorMessage();
 
-                return error != null && "UK_GRP_GROUP_CODE".equals(error.getConstraint());
+                return error != null && "GRP_GROUPS_GROUP_CODE_KEY".equals(error.getConstraint());
             }
 
             cause = cause.getCause();
