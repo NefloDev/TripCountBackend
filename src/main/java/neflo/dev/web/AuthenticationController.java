@@ -28,14 +28,17 @@ public class AuthenticationController {
     private final GoogleAuthenticationService googleAuthenticationService;
 
     @PostMapping("/signup")
-    public ResponseEntity<UserModel> registerUser(@RequestBody UserDTO userDTO) {
+    public ResponseEntity<LoginResponse> registerUser(@RequestBody UserDTO userDTO) {
         if (authenticationService.isUserRegistered(userDTO)) {
             throw new AuthenticationException("user-registered", "That email is already in use");
         }
 
         UserModel registeredUser = authenticationService.signup(userDTO);
+        String jwtToken = jwtService.generateToken(registeredUser);
 
-        return ResponseEntity.ok(registeredUser);
+        LoginResponse loginResponse = new LoginResponse(jwtToken, jwtService.getExpirationTime());
+
+        return ResponseEntity.ok(loginResponse);
     }
 
     @PostMapping("/login")
