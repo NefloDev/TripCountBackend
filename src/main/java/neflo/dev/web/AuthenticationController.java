@@ -21,46 +21,30 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/auth")
 public class AuthenticationController {
 
-    private final JwtService jwtService;
     private final AuthenticationService authenticationService;
     private final GoogleAuthenticationService googleAuthenticationService;
 
     @PostMapping("/signup")
     public ResponseEntity<LoginResponse> registerUser(@RequestBody UserDTO userDTO) {
-        if (authenticationService.isUserRegistered(userDTO)) {
-            throw new AuthenticationException("user-registered", "That email is already in use");
-        }
-
-        UserModel registeredUser = authenticationService.signup(userDTO);
-        String jwtToken = jwtService.generateToken(registeredUser);
-
-        LoginResponse loginResponse = new LoginResponse(jwtToken, jwtService.getExpirationTime());
-
-        return ResponseEntity.ok(loginResponse);
+        log.info("TripCountAPI.Authentication >> SignUp :: START");
+        return ResponseEntity.ok(authenticationService.signup(userDTO));
     }
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> authenticateUser(@RequestBody UserLoginDTO loginDTO) {
-        UserModel authenticatedUser = authenticationService.authenticate(loginDTO);
-
-        String jwtToken = jwtService.generateToken(authenticatedUser);
-
-        LoginResponse loginResponse = new LoginResponse(jwtToken, jwtService.getExpirationTime());
-
-        return ResponseEntity.ok(loginResponse);
+        log.info("TripCountAPI.Authentication >> Login :: START");
+        return ResponseEntity.ok(authenticationService.authenticate(loginDTO));
     }
 
     @GetMapping("/refresh")
     public ResponseEntity<LoginResponse> authenticateUser(@AuthenticationPrincipal UserModel user) {
-        String jwtToken = jwtService.generateToken(user);
-
-        LoginResponse loginResponse = new LoginResponse(jwtToken, jwtService.getExpirationTime());
-
-        return ResponseEntity.ok(loginResponse);
+        log.info("TripCountAPI.Authentication >> Refresh :: START");
+        return ResponseEntity.ok(authenticationService.refreshToken(user));
     }
 
     @PostMapping("/google/login")
     public ResponseEntity<LoginResponse> authenticateGoogleUser(@RequestBody GoogleLoginDTO request) {
+        log.info("TripCountAPI.Authentication >> Google Login :: START");
         return ResponseEntity.ok(googleAuthenticationService.authenticate(request.idToken()));
     }
 

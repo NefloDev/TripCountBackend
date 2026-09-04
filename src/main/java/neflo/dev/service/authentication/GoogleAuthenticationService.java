@@ -29,7 +29,7 @@ public class GoogleAuthenticationService {
         try {
             googleIdToken = verifier.verify(idToken);
         } catch (Exception e) {
-            throw new UnexpectedException("unable-google-login", "We had a problem perfoming google login.", e);
+            throw new UnexpectedException("unable-google-login", "We had a problem performing google login.", e);
         }
 
         if (googleIdToken == null) {
@@ -47,9 +47,10 @@ public class GoogleAuthenticationService {
         UserModel user = userRepository.findByEmail(email)
                 .orElseGet(() -> createUser(email, payload));
 
-        log.info("GoogleAuthenticationService.authenticate >> userFound :: {}", user.getEmail());
+        log.info("TripCountAPI.Authentication >> Google Login :: Authentication successful");
 
         String token = jwtService.generateToken(user);
+        log.info("TripCountAPI.Authentication >> Google Login :: Token generated");
 
         return new LoginResponse(token, jwtService.getExpirationTime());
     }
