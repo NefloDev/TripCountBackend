@@ -112,15 +112,13 @@ public class UserService {
                 .orElseThrow(() -> new NoEntitiesFoundException("group-not-found", "Group not found."));
         log.info("{}.joinGroup() >> group found", CLASS_PATH);
 
-        int originalSize = repositoryResponse.getGroups().size();
-        log.info("{}.joinGroup() >> original group size :: {}", CLASS_PATH, originalSize);
-        repositoryResponse.getGroups().add(groupResponse);
-        log.info("{}.joinGroup() >> new group size :: {}", CLASS_PATH, repositoryResponse.getGroups().size());
+        boolean added = repositoryResponse.getGroups().add(groupResponse);
 
-        repositoryResponse = repository.save(repositoryResponse);
-        if (originalSize == repositoryResponse.getGroups().size()) {
-            throw new DatabaseException("group-not-joined", "Couldn't jon to the group at the moment, try again later.");
+        if (!added) {
+            throw new DatabaseException("already-member", "User is already a member of this group.");
         }
+
+        repository.save(repositoryResponse);
 
         return groupMapper.entityToDTO(groupResponse);
     }

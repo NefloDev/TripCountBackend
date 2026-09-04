@@ -9,10 +9,7 @@ import org.springframework.data.domain.Persistable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Getter
 @Setter
@@ -49,10 +46,10 @@ public class UserModel implements Persistable<UUID>, UserDetails {
             joinColumns = @JoinColumn(name = "USR_ID"),
             inverseJoinColumns = @JoinColumn(name = "GRP_ID")
     )
-    private List<GroupModel> groups = new ArrayList<>();
+    private Set<GroupModel> groups = new HashSet<>();
 
     @ManyToMany(mappedBy = "passengers")
-    private List<TripModel> trips = new ArrayList<>();
+    private Set<TripModel> trips = new HashSet<>();
 
     @Override
     public boolean isNew() {
@@ -85,8 +82,6 @@ public class UserModel implements Persistable<UUID>, UserDetails {
                 .append(name, userModel.name)
                 .append(nickname, userModel.nickname)
                 .append(pfp, userModel.pfp)
-                .append(groups, userModel.groups)
-                .append(trips, userModel.trips)
                 .isEquals();
     }
 
@@ -99,8 +94,6 @@ public class UserModel implements Persistable<UUID>, UserDetails {
                 .append(name)
                 .append(nickname)
                 .append(pfp)
-                .append(groups)
-                .append(trips)
                 .toHashCode();
     }
 

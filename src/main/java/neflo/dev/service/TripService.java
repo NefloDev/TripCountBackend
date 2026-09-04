@@ -80,7 +80,7 @@ public class TripService {
                 .origin(dto.origin())
                 .destination(dto.destination())
                 .notes(dto.notes())
-                .passengers(passengers)
+                .passengers(new HashSet<>(passengers))
                 .build();
 
         TripModel repositoryResponse = repository.save(trip);
@@ -109,6 +109,9 @@ public class TripService {
     }
 
     private @NonNull List<UserModel> getPassengersOrThrow(List<UUID> passengersUuids, GroupModel foundGroup) {
+        if (passengersUuids.isEmpty()) {
+            throw new ValidationException("passenger-not-informed", "At least one passenger is required.");
+        }
         List<UserModel> passengers = passengersUuids.stream()
                 .distinct()
                 .map(this::getUserOrThrow)
@@ -162,7 +165,7 @@ public class TripService {
                 repositoryResponse.getPassengers().isEmpty() || !repositoryResponse.getPassengers().stream()
                     .map(p -> p.getId().toString()).toList().equals(passengers.stream().map(p -> p.getId().toString()).toList())) {
             updateCount++;
-            repositoryResponse.setPassengers(new ArrayList<>(passengers));
+            repositoryResponse.setPassengers(new HashSet<>(passengers));
         }
 
         Optional<UserModel> driver = userRepository.findById(dto.driver());

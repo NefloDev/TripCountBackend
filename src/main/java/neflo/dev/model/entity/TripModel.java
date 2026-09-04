@@ -8,9 +8,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.springframework.data.domain.Persistable;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Getter
 @Setter
@@ -63,7 +61,7 @@ public class TripModel implements Persistable<UUID> {
             joinColumns = @JoinColumn(name = "TRP_ID"),
             inverseJoinColumns = @JoinColumn(name = "USR_ID")
     )
-    private List<UserModel> passengers = new ArrayList<>();
+    private Set<UserModel> passengers = new HashSet<>();
 
     @Override
     public boolean isNew() {

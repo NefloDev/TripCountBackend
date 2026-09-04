@@ -7,9 +7,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.springframework.data.domain.Persistable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Getter
 @Setter
@@ -40,18 +38,10 @@ public class GroupModel implements Persistable<UUID> {
             orphanRemoval = true
     )
     @JoinColumn(name = "GRP_ID")
-    private List<TripModel> trips = new ArrayList<>();
+    private Set<TripModel> trips = new HashSet<>();
 
     @ManyToMany(mappedBy = "groups")
-    private List<UserModel> members = new ArrayList<>();
-
-    public void addMember(UserModel user) {
-        if (members == null) {
-            members = new ArrayList<>();
-        }
-        members.add(user);
-        user.getGroups().add(this);
-    }
+    private Set<UserModel> members = new HashSet<>();
 
     @Override
     public boolean isNew() {
@@ -74,11 +64,21 @@ public class GroupModel implements Persistable<UUID> {
 
         GroupModel that = (GroupModel) o;
 
-        return new EqualsBuilder().append(id, that.id).append(name, that.name).append(groupCode, that.groupCode).append(pfp, that.pfp).append(trips, that.trips).append(members, that.members).isEquals();
+        return new EqualsBuilder()
+                .append(id, that.id)
+                .append(name, that.name)
+                .append(groupCode, that.groupCode)
+                .append(pfp, that.pfp)
+                .isEquals();
     }
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37).append(id).append(name).append(groupCode).append(pfp).append(trips).append(members).toHashCode();
+        return new HashCodeBuilder(17, 37)
+                .append(id)
+                .append(name)
+                .append(groupCode)
+                .append(pfp)
+                .toHashCode();
     }
 }

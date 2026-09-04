@@ -23,9 +23,7 @@ import org.postgresql.util.ServerErrorMessage;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -97,7 +95,7 @@ public class GroupService {
         GroupModel repositoryResponse = repository.findById(groupUuid)
                 .orElseThrow(() -> new NoEntitiesFoundException("group-not-found", "Group not found."));
 
-        if (repositoryResponse.getMembers().size() == 1 && repositoryResponse.getMembers().get(0).getId().equals(userUuid)) {
+        if (repositoryResponse.getMembers().size() == 1 && repositoryResponse.getMembers().stream().allMatch(m -> m.getId().equals(userUuid))) {
             repositoryResponse.getMembers().forEach(
                     user -> user.getGroups().remove(repositoryResponse)
             );
@@ -192,12 +190,14 @@ public class GroupService {
                 groupModel.setPfp(groupDTO.pfp().get());
             }
 
-            groupModel.addMember(foundUser);
-
             try {
-                GroupDTO response = mapper.entityToDTO(repository.save(groupModel));
-                log.info("{}.createGroup() >> group created :: {}", CLASS_PATH, response);
+                groupModel = repository.save(groupModel);
 
+                foundUser.getGroups().add(groupModel);
+                userRepository.save(foundUser);
+
+                GroupDTO response = mapper.entityToDTO(groupModel);
+                log.info("{}.createGroup() >> group created :: {}", CLASS_PATH, response);
                 return response;
             } catch (DataIntegrityViolationException e) {
                 if (!isGroupCodeCollision(e)) {
