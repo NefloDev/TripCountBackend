@@ -12,10 +12,8 @@ import neflo.dev.service.authentication.AuthenticationService;
 import neflo.dev.service.authentication.GoogleAuthenticationService;
 import neflo.dev.service.authentication.JwtService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
@@ -46,6 +44,15 @@ public class AuthenticationController {
         UserModel authenticatedUser = authenticationService.authenticate(loginDTO);
 
         String jwtToken = jwtService.generateToken(authenticatedUser);
+
+        LoginResponse loginResponse = new LoginResponse(jwtToken, jwtService.getExpirationTime());
+
+        return ResponseEntity.ok(loginResponse);
+    }
+
+    @GetMapping("/refresh")
+    public ResponseEntity<LoginResponse> authenticateUser(@AuthenticationPrincipal UserModel user) {
+        String jwtToken = jwtService.generateToken(user);
 
         LoginResponse loginResponse = new LoginResponse(jwtToken, jwtService.getExpirationTime());
 
